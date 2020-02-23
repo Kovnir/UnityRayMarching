@@ -2,7 +2,12 @@
 {
     Properties
     {
+        _MergeFactor("Merge Factor", Range(0,10)) = 2
+
+        [Header(System)]    
         _GeometrySurfDist("Geometry Surface Distance", Range(0.00001,0.4)) = 0.01
+        _MaxSteps("Max Steps", Range(100,1000)) = 1000
+        _MaxDist("Max Distance", Range(10,1000)) = 1000
     }
     SubShader
     {
@@ -20,9 +25,6 @@
             #include "Blends.cginc"
 
             #include "UnityCG.cginc"
-            #define MAX_STEPS 1000
-            #define MAX_DIST 1000
-
 
             struct appdata
             {
@@ -40,7 +42,10 @@
             };
 
             float _GeometrySurfDist;
-            float4 particles[500];
+            float4 particles[100];
+            float _MaxDist;
+            float _MaxSteps;
+            float _MergeFactor;
 
             v2f vert (appdata v)
             {
@@ -58,7 +63,7 @@
             float GetDist(float3 p)
             {
                 float distance = 10000;
-                for(int i = 0; i < 500; i ++)
+                for(int i = 0; i < 100; i ++)
                 {
                     float4 particle = particles[i];
                     if (particle.w > 0)
@@ -70,7 +75,7 @@
                         }
                         else
                         {
-                            distance = merge(distance, sphere, 0.5);
+                            distance = merge(distance, sphere, _MergeFactor);
                         }
                     }
                 }
@@ -105,12 +110,12 @@
                 //distance from the surface
                 float dS; 
                 
-                for(int i =0; i < MAX_STEPS; i++)
+                for(int i =0; i < _MaxSteps; i++)
                 {
                     float3 p = ro + dO*rd;
                     dS = GetDist(p);
                     dO += dS;
-                    if (dS < _GeometrySurfDist || dO > MAX_DIST)
+                    if (dS < _GeometrySurfDist || dO > _MaxDist)
                     {
                         //hit!
                         break;
@@ -131,7 +136,7 @@
                 float d = Raymarch(ro, rd);
                 
                 fixed4 col = 0;
-                if (d < MAX_DIST)
+                if (d < _MaxDist)
                 {
                     float3 p = ro + rd * d;
                     float3 dif = GetLight(p);

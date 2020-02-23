@@ -25,4 +25,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _GeometrySurfDist: 0.01
+    - _MaxDist: 200
+    - _MaxSteps: 200
+    - _MergeFactor: 3.82
     m_Colors: []

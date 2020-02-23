@@ -5,12 +5,13 @@ using UnityEngine;
 [ExecuteAlways]
 public class RayMarchingParticles : MonoBehaviour
 {
+    private const int PARTICLES_SIZE = 100;
     [SerializeField] private MeshRenderer renderer;
     
     private Material material;
     private ParticleSystem particleSystem;
-    ParticleSystem.Particle[] particles = new ParticleSystem.Particle[500];
-    List<Vector4> buffer = new List<Vector4>(500);
+    ParticleSystem.Particle[] particles = new ParticleSystem.Particle[PARTICLES_SIZE];
+    List<Vector4> buffer = new List<Vector4>(PARTICLES_SIZE);
     private static readonly int Particles = Shader.PropertyToID("particles");
 
     void Awake()
@@ -29,13 +30,21 @@ public class RayMarchingParticles : MonoBehaviour
         }
         int numParticlesAlive = particleSystem.GetParticles(particles);
         buffer.Clear();
-        for (int i = 0; i < numParticlesAlive; i++)
+        for (int i = 0; i < PARTICLES_SIZE; i++)
         {
+            if (i < numParticlesAlive)
+            {
                 var particle = particles[i];
                 Vector3 position = transform.TransformDirection(particle.position);
 //                Vector3 position = transform.localToWorldMatrix * particle.position;
-                buffer.Add(new Vector4(position.x,position.y,position.z,particle.GetCurrentSize(particleSystem)));
+                buffer.Add(new Vector4(position.x, position.y, position.z, particle.GetCurrentSize(particleSystem)));
+            }
+            else
+            {
+                buffer.Add(Vector4.zero);
+            }
         }
+
         material.SetVectorArray(Particles, buffer);
     }
 
