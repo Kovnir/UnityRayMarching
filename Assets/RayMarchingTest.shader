@@ -58,7 +58,7 @@
                 float4 vertex : SV_POSITION;
                 float3 ro : TEXCOORD1;
                 float3 hitPos : TEXCOORD2;
-            }; 
+            };
 
             float4 _DirectionLight;
             float3 _DirectionLightColor;

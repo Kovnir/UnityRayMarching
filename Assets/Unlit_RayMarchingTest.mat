@@ -28,13 +28,14 @@ Material:
     - _FillWithRed: 0
     - _GeometrySurfDist: 0.00001
     - _Overlay: 0
+    - _PointLightRange: 5.62
     - _Program: 3
     - _RenderMode: 0
     - _ShadowSurfDist: 0.051
     - _SurfDist: 0.008
     m_Colors:
-    - _DirectionLight: {r: -0.54081166, g: -0.7481365, b: 0.38446638, a: 1}
-    - _DirectionLightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _DirectionLight: {r: -0.42837203, g: -0.7499475, b: 0.5040597, a: 1}
+    - _DirectionLightColor: {r: 1, g: 0.7353013, b: 0.062745094, a: 1}
     - _LightPos: {r: -0.99, g: 4.25, b: 6, a: 0}
-    - _PointLight: {r: 0, g: 0, b: 0, a: 0}
-    - _PointLightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _PointLight: {r: -1.48, g: 0.12, b: -0.25, a: 0.45}
+    - _PointLightColor: {r: 0.20889258, g: 1, b: 0, a: 1}
