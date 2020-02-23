@@ -3,6 +3,11 @@
     Properties
     {
         _MergeFactor("Merge Factor", Range(0,10)) = 2
+        _FresnelFactor("Fresnel Factor", float) = 1
+        _LightFactor("Light Factor", float) = 1
+        _FresnelColor("Fresnel Color", Color) = (1,1,1,1)
+        _Color("Color", Color) = (1,1,1,1)
+        _Shininess("Shininess", Range(0,100)) = 1
 
         [Header(System)]    
         _GeometrySurfDist("Geometry Surface Distance", Range(0.00001,0.4)) = 0.01
@@ -45,7 +50,13 @@
             float4 particles[100];
             float _MaxDist;
             float _MaxSteps;
+            
             float _MergeFactor;
+            float _LightFactor;
+            float _FresnelFactor;
+            float3 _FresnelColor;
+            float3 _Color;
+            float _Shininess;
 
             v2f vert (appdata v)
             {
@@ -93,14 +104,17 @@
                 return normalize(n);
             }
 
-            float3 GetLight(float3 p)
+            float3 GetLight(float3 p, float3 rd)
             {
                 float3 n = GetNormal(p);
 
                 float3 directionLightDir = float3(0,-1,0);//_DirectionLight.xyz;
                 float3 directionLight = saturate(dot(n, -directionLightDir));// * _DirectionLight.w) * _DirectionLightColor;
+                float3 fresnel = 1-dot(n, -rd);
                 
-                return directionLight;
+                float3 specLight = max(0.0, dot(reflect(-directionLightDir, n), rd));
+                
+                return (directionLight * _LightFactor + fresnel * _FresnelFactor * _FresnelColor) * _Color + pow(specLight, _Shininess);
             }
             
             float Raymarch(float3 ro, float3 rd)
@@ -139,7 +153,7 @@
                 if (d < _MaxDist)
                 {
                     float3 p = ro + rd * d;
-                    float3 dif = GetLight(p);
+                    float3 dif = GetLight(p, rd);
 //                    float3 n = GetNormal(p);
                     col.rgb = dif;
                 }
