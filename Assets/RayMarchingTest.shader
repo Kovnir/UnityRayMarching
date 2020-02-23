@@ -6,7 +6,11 @@
         _DirectionLightColor("DirectionaLightColor", COLOR) = (1,1,1,1)
         _PointLight ("_PointLight", Vector) = (0,0,0,0)
         _PointLightColor("PointLightColor", COLOR) = (1,1,1,1)
-        _SurfDist("Surface Distance", float) = 0.01
+        _GeometrySurfDist("Geometry Surface Distance", Range(0.00001,0.4)) = 0.01
+        _ShadowSurfDist("Shadow Surface Distance", Range(0.00001,0.4)) = 0.01
+
+        [Toggle(ENABLE_SHADOWS)]
+        _EnableShadows ("Enable Shadows", Float) = 0
     }
     
     SubShader
@@ -20,6 +24,7 @@
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma shader_feature ENABLE_SHADOWS
             #include "UnityCG.cginc"
             #include "Geometry.cginc"
 
@@ -44,7 +49,9 @@
             float3 _DirectionLightColor;
             float4 _PointLight;
             float3 _PointLightColor;
-            float _SurfDist;
+            float _GeometrySurfDist;
+            float _ShadowSurfDist;
+
 
             v2f vert (appdata v)
             {
@@ -107,7 +114,7 @@
                     float3 p = ro + dO*rd;
                     dS = GetDist(p);
                     dO += dS;
-                    if (dS < _SurfDist || dO > MAX_DIST)
+                    if (dS < _GeometrySurfDist || dO > MAX_DIST)
                     {
                         //hit!
                         break;
@@ -131,12 +138,20 @@
             {
                 float3 n = GetNormal(p);
 
-                float3 directionLightPos = _DirectionLight.xyz;
-                float3 directionLight = saturate(dot(n, directionLightPos.xyz) * _DirectionLight.w) * _DirectionLightColor;
+                float3 directionLightDir = _DirectionLight.xyz;
+                float3 directionLight = saturate(dot(n, directionLightDir) * _DirectionLight.w) * _DirectionLightColor;
 
                 float3 pointLightPos = _PointLight.xyz;
                 float l = normalize(pointLightPos-p);
                 float3 pointLight = saturate(dot(n, l) * _PointLight.w) * _PointLightColor;
+
+#ifdef ENABLE_SHADOWS
+                float shadow = Raymarch(p + n * _ShadowSurfDist, pointLightPos);
+                if (shadow < length(pointLightPos - p))
+                {
+                    pointLight *= 0.1;
+                }
+#endif
                 
                 return directionLight + pointLight;
             }
