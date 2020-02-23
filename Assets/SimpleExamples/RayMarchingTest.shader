@@ -16,18 +16,16 @@
         _EnableShadows ("Enable Shadows", Float) = 0
         
         [Header(System)]
-        [KeywordEnum(MovingBalls, Trip, AllShapes, SubstructionTest)] _Program ("Program", Float) = 0
+        [KeywordEnum(MovingBalls, Trip, AllShapes, BlendingTypes)] _Program ("Program", Float) = 0
         [KeywordEnum(LocalSpace, WorldSpace)] _RenderMode ("Render Mode", Float) = 0
 
         [Header(Quality)]
         _GeometrySurfDist("Geometry Surface Distance", Range(0.00001,0.4)) = 0.01
         _ShadowSurfDist("Shadow Surface Distance", Range(0.00001,0.4)) = 0.01
-
     }
     
     SubShader
     {
-    
         Tags { "RenderType"="Opaque" "LightMode" = "ForwardBase" }
         LOD 100
 
@@ -37,11 +35,11 @@
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature ENABLE_SHADOWS
-            #pragma multi_compile _PROGRAM_MOVINGBALLS _PROGRAM_TRIP _PROGRAM_ALLSHAPES _PROGRAM_SUBSTRUCTIONTEST
+            #pragma multi_compile _PROGRAM_MOVINGBALLS _PROGRAM_TRIP _PROGRAM_ALLSHAPES _PROGRAM_BLENDINGTYPES
             #pragma multi_compile _RENDERMODE_LOCALSPACE _RENDERMODE_WORLDSPACE
             #include "UnityCG.cginc"
-            #include "Geometry.cginc"
-            #include "Blends.cginc"
+            #include "Assets/ShadersBase/Geometry.cginc"
+            #include "Assets/ShadersBase/Blends.cginc"
 
             #define MAX_STEPS 1000
             #define MAX_DIST 1000
@@ -88,23 +86,28 @@
 
             float GetDist_AllShapes(float3 p)
             {
+                float z = -3;
+                float startPos = -1.25;
+                float offset = 1;
+
                 float plane = p.y + 0.5f;
-                float sphere = Sphere(p, float4(-0.5,0,0,.2));
-                float capsule = Capsule(p, float3(0,-0.075,0), float3(0,0.15,0), 0.1, _Time);
-                float torus = Torus(p, float3(0.5,0,0), float2(0.15,0.05), _Time);
-                float box = Box(p, float3(1,0,0), float3(0.1,0.1, 0.1), _Time);
+                float sphere = Sphere(p, float4(startPos,0,z,.3));
+                float capsule = Capsule(p, float3(startPos + offset,-0.15,z), float3(startPos + offset, 0.15,z), 0.1);
+                float torus = Torus(p, float3(startPos + offset*2,0,z), float2(0.2,0.05), _Time);
+                float box = Box(p, float3(startPos + offset*3,0,z), float3(0.2,0.2, 0.2), _Time);
                 return add(plane, sphere, capsule, torus, box);
             }
                         
             float GetDist_MovingBalls(float3 p)
             {
                 float distance = 1000;
-                for(int i =-3; i < 3; i++)
+                float timeFactor = _Time * 30;
+                for(int i =-3; i < 4; i++)
                 {
-                    for(int j =-3; j < 3; j++)
+                    for(int j =-3; j < 4; j++)
                     {
-                        float f1 = sin(_Time * 30 + i)/3;
-                        float f2 = sin(_Time * 30 + j)/4;
+                        float f1 = sin(timeFactor + i)/3;
+                        float f2 = sin(timeFactor + j)/4;
                         distance = add(distance, Sphere(p, float4(i + f1,-0.3,j + f2,.3)));
                     }
                 }
@@ -112,25 +115,28 @@
                 return add(distance, planeDist);
             }
             
-            float GetDist_SubstructionTest(float3 p)
+            float GetDist_BlendingTypes(float3 p)
             {
-                float spherePos = sin(_Time.x*10);
+                float sphereMoveOffset = sin(_Time.x*10);
                 
+                float startPos = -3;
+                float offset = 2;
+
                 //add
-                float sphere1 = Sphere(p, float4(-4,0,0,.3));
-                float sphere2 = Sphere(p, float4(spherePos-4,0.2,0,.3));
+                float sphere1 = Sphere(p, float4(startPos,0,0,.3));
+                float sphere2 = Sphere(p, float4(sphereMoveOffset+startPos,0.2,0.1,.3));
                 float addition = add(sphere1, sphere2);
                 //substruction
-                sphere1 = Sphere(p, float4(-2,0,0,.3));
-                sphere2 = Sphere(p, float4(spherePos-2,0.2,0,.3));
+                sphere1 = Sphere(p, float4(startPos+offset,0,0,.3));
+                sphere2 = Sphere(p, float4(sphereMoveOffset+startPos+offset,0.2,0.1,.3));
                 float substruction = substruct(sphere1, sphere2);
                 //intersection
-                sphere1 = Sphere(p, float4(0,0,0,.3));
-                sphere2 = Sphere(p, float4(spherePos,0.2,0,.3));
+                sphere1 = Sphere(p, float4(startPos+2*offset,0,0,.3));
+                sphere2 = Sphere(p, float4(sphereMoveOffset+startPos+2*offset,0.2,0.1,.3));
                 float intersection = intersect(sphere1, sphere2);
                 //merge
-                sphere1 = Sphere(p, float4(2,0,0,.3));
-                sphere2 = Sphere(p, float4(spherePos+2,0.2,0,.3));
+                sphere1 = Sphere(p, float4(startPos+3*offset,0,0,.3));
+                sphere2 = Sphere(p, float4(sphereMoveOffset+startPos+3*offset,0.2,0.1,.3));
                 float merging = merge(sphere1, sphere2, 0.5);
                 
                 return add(addition, substruction, intersection, merging);
@@ -139,13 +145,14 @@
             float GetDist_Trip(float3 p)
             {
                 float distance = 1000;
-                
-                for(int i =-3; i < 3; i++)
+                float timeFactor = _Time * 30;
+
+                for(int i =-3; i < 4; i++)
                 {
-                    for(int j =-3; j < 3; j++)
+                    for(int j =-3; j < 4; j++)
                     {
-                        float f1 = sin(_Time * 30 + i)/3;
-                        float f2 = sin(_Time * 30 + j)/4;
+                        float f1 = sin(timeFactor + i)/3;
+                        float f2 = sin(timeFactor + j)/4;
                         distance = add(distance, Sphere(p, float4(i + f1,0.2,j + f2,.3)));
                     }
                 }               
@@ -164,8 +171,8 @@
 #ifdef _PROGRAM_ALLSHAPES
                 return GetDist_AllShapes(p);
 #endif
-#ifdef _PROGRAM_SUBSTRUCTIONTEST
-                return GetDist_SubstructionTest(p);
+#ifdef _PROGRAM_BLENDINGTYPES
+                return GetDist_BlendingTypes(p);
 #endif
             }
             

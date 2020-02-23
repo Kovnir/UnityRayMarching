@@ -31,8 +31,8 @@
             #pragma fragment frag
             #pragma multi_compile_fog
 
-            #include "Geometry.cginc"
-            #include "Blends.cginc"
+            #include "Assets/ShadersBase/Geometry.cginc"
+            #include "Assets/ShadersBase/Blends.cginc"
 
             #include "UnityCG.cginc"
 
