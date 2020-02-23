@@ -86,11 +86,13 @@
 
             float GetDist_AllShapes(float3 p)
             {
+//                float3 rotation = float3(_Time.x
+            
                 float plane = p.y + 0.5f;
                 float sphere = Sphere(p, float4(-0.5,0,0,.2));
-                float capsule = Capsule(p, float3(0,-0.075,0), float3(0,0.15,0), 0.1);
-                float torus = Torus(p, float3(0.5,0,0), float2(0.15,0.05));
-                float box = Box(p, float3(1,0,0), float3(0.1,0.1, 0.1));
+                float capsule = Capsule(p, float3(0,-0.075,0), float3(0,0.15,0), 0.1, _Time);
+                float torus = Torus(p, float3(0.5,0,0), float2(0.15,0.05), _Time);
+                float box = Box(p, float3(1,0,0), float3(0.1,0.1, 0.1), _Time);
                 return min(plane, sphere, capsule, torus, box);
             }
                         
