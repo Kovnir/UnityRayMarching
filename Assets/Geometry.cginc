@@ -13,3 +13,10 @@ float Capsule(float3 p, float3 a, float3 b, float r)
     float3 c = a + t*ab;
     return length (p-c) - r;
 }
+
+float Torus()
+{
+                
+                //d = length(float2(length(p.xz)-0.5, p.y)) - 0.1; //torus
+}
+

@@ -2,15 +2,25 @@
 {
     Properties
     {
-        _DirectionLight ("_DirectionLight", Vector) = (0,0,0,0)
+        [Header(Light)]
+        _DirectionLight ("DirectionLight", Vector) = (0,0,0,0)
         _DirectionLightColor("DirectionaLightColor", COLOR) = (1,1,1,1)
-        _PointLight ("_PointLight", Vector) = (0,0,0,0)
+
+        [Space]
+        _PointLight ("PointLight", Vector) = (0,0,0,0)
         _PointLightColor("PointLightColor", COLOR) = (1,1,1,1)
+
+        [Space]
+        [Toggle(ENABLE_SHADOWS)]
+        _EnableShadows ("Enable Shadows", Float) = 0
+        
+        [Header(System)]
+        [KeywordEnum(MovingBalls, Trip, AllShapes)] _Program ("Program", Float) = 0
+
+        [Header(Quality)]
         _GeometrySurfDist("Geometry Surface Distance", Range(0.00001,0.4)) = 0.01
         _ShadowSurfDist("Shadow Surface Distance", Range(0.00001,0.4)) = 0.01
 
-        [Toggle(ENABLE_SHADOWS)]
-        _EnableShadows ("Enable Shadows", Float) = 0
     }
     
     SubShader
@@ -25,8 +35,10 @@
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature ENABLE_SHADOWS
+            #pragma multi_compile _PROGRAM_MOVINGBALLS _PROGRAM_TRIP _PROGRAM_ALLSHAPES
             #include "UnityCG.cginc"
             #include "Geometry.cginc"
+            #include "Blends.cginc"
 
             #define MAX_STEPS 1000
             #define MAX_DIST 1000
@@ -63,30 +75,31 @@
                 return o;
             }
 
-            float GetDist(float3 p)
+            float GetDist_AllShapes(float3 p)
+            {
+                float plane = p.y + 0.5f;
+                float sphere = Sphere(p, float4(-1,0,0,.3));
+                float capsule = Capsule(p, float3(0,-0.075,0), float3(0,0.15,0), 0.1);
+                return min(plane, sphere, capsule);
+            }
+                        
+            float GetDist_MovingBalls(float3 p)
             {
                 float distance = 1000;
-                
                 for(int i =-3; i < 3; i++)
                 {
                     for(int j =-3; j < 3; j++)
                     {
                         float f1 = sin(_Time * 30 + i)/3;
                         float f2 = sin(_Time * 30 + j)/4;
-                        distance = min(distance, Sphere(p, float4(i + f1,-0.4,j + f2,.3)));
+                        distance = min(distance, Sphere(p, float4(i + f1,-0.3,j + f2,.3)));
                     }
                 }
-               
                 float planeDist = p.y + 0.5f;
-                
-                //d = length(float2(length(p.xz)-0.5, p.y)) - 0.1; //torus
-
-                float d =  min(distance, planeDist);
-                
-                return d;
+                return min(distance, planeDist);
             }
 
-            float GetDist1(float3 p)
+            float GetDist_Trip(float3 p)
             {
                 float distance = 1000;
                 
@@ -100,6 +113,19 @@
                
                 float planeDist = p.y;
                 return min(distance, planeDist) + planeDist + distance;
+            }
+                        
+            float GetDist(float3 p)
+            {
+#ifdef _PROGRAM_MOVINGBALLS 
+                return GetDist_MovingBalls(p);
+#endif
+#ifdef _PROGRAM_TRIP
+                return GetDist_Trip(p);
+#endif
+#ifdef _PROGRAM_ALLSHAPES
+                return GetDist_AllShapes(p);
+#endif
             }
             
             float Raymarch(float3 ro, float3 rd)
