@@ -6,6 +6,7 @@
         _DirectionLightColor("DirectionaLightColor", COLOR) = (1,1,1,1)
         _PointLight ("_PointLight", Vector) = (0,0,0,0)
         _PointLightColor("PointLightColor", COLOR) = (1,1,1,1)
+        _SurfDist("Surface Distance", float) = 0.01
     }
     
     SubShader
@@ -20,10 +21,10 @@
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
+            #include "Geometry.cginc"
 
             #define MAX_STEPS 1000
             #define MAX_DIST 1000
-            #define SURF_DIST 1e-3
             
             struct appdata
             {
@@ -43,6 +44,7 @@
             float3 _DirectionLightColor;
             float4 _PointLight;
             float3 _PointLightColor;
+            float _SurfDist;
 
             v2f vert (appdata v)
             {
@@ -54,20 +56,43 @@
                 return o;
             }
 
-
             float GetDist(float3 p)
             {
-                float4 s =  float4(0,0.2,0,.2);//sphere
-                float sphereDistance = length(p - s.xyz) - s.w;
+                float distance = 1000;
                 
-                float planeDist = p.y;
+                for(int i =-3; i < 3; i++)
+                {
+                    for(int j =-3; j < 3; j++)
+                    {
+                        float f1 = sin(_Time * 30 + i)/3;
+                        float f2 = sin(_Time * 30 + j)/4;
+                        distance = min(distance, Sphere(p, float4(i + f1,-0.4,j + f2,.3)));
+                    }
+                }
+               
+                float planeDist = p.y + 0.5f;
                 
                 //d = length(float2(length(p.xz)-0.5, p.y)) - 0.1; //torus
 
-                float d = min(sphereDistance, planeDist);
-                
+                float d =  min(distance, planeDist);
                 
                 return d;
+            }
+
+            float GetDist1(float3 p)
+            {
+                float distance = 1000;
+                
+                for(int i =-3; i < 3; i++)
+                    for(int j =-3; j < 3; j++)
+                    {
+                        float f1 = sin(_Time * 30 + i)/3;
+                        float f2 = sin(_Time * 30 + j)/4;
+                        distance = min(distance, Sphere(p, float4(i + f1,0.2,j + f2,.3)));
+                    }
+               
+                float planeDist = p.y;
+                return min(distance, planeDist) + planeDist + distance;
             }
             
             float Raymarch(float3 ro, float3 rd)
@@ -82,7 +107,7 @@
                     float3 p = ro + dO*rd;
                     dS = GetDist(p);
                     dO += dS;
-                    if (dS < SURF_DIST || dO > MAX_DIST)
+                    if (dS < _SurfDist || dO > MAX_DIST)
                     {
                         //hit!
                         break;
