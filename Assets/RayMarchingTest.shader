@@ -8,6 +8,7 @@
 
         [Space]
         _PointLight ("PointLight", Vector) = (0,0,0,0)
+        _PointLightRange ("PointLightRange", float) = 10
         _PointLightColor("PointLightColor", COLOR) = (1,1,1,1)
 
         [Space]
@@ -62,6 +63,7 @@
             float4 _DirectionLight;
             float3 _DirectionLightColor;
             float4 _PointLight;
+            float _PointLightRange;
             float3 _PointLightColor;
             float _GeometrySurfDist;
             float _ShadowSurfDist;
@@ -115,7 +117,6 @@
             float GetDist_SubstructionTest(float3 p)
             {
                 float spherePos = sin(_Time.x*10);
-                float planeDist = p.y + 0.5f;
                 
                 //add
                 float sphere1 = Sphere(p, float4(-4,0,0,.3));
@@ -134,7 +135,7 @@
                 sphere2 = Sphere(p, float4(spherePos+2,0.2,0,.3));
                 float merging = merge(sphere1, sphere2, 0.5);
                 
-                return add(addition, substruction, intersection, merging, planeDist);
+                return add(addition, substruction, intersection, merging);
             }
 
             float GetDist_Trip(float3 p)
@@ -206,11 +207,15 @@
                 float3 n = GetNormal(p);
 
                 float3 directionLightDir = _DirectionLight.xyz;
-                float3 directionLight = saturate(dot(n, directionLightDir) * _DirectionLight.w) * _DirectionLightColor;
+                float3 directionLight = saturate(dot(n, -directionLightDir) * _DirectionLight.w) * _DirectionLightColor;
 
                 float3 pointLightPos = _PointLight.xyz;
-                float l = normalize(pointLightPos-p);
-                float3 pointLight = saturate(dot(n, l) * _PointLight.w) * _PointLightColor;
+                float3 directionToPointLight = pointLightPos-p;
+                float lightNormal = normalize(pointLightPos-p);
+                float3 pointLight = saturate(dot(n, lightNormal) * _PointLight.w) * _PointLightColor;
+                float lightLength = length(directionToPointLight);
+                pointLight = lerp(0, pointLight, saturate(_PointLightRange - lightLength));
+                
 
 #ifdef ENABLE_SHADOWS
                 float shadow = Raymarch(p + n * _ShadowSurfDist, pointLightPos);
