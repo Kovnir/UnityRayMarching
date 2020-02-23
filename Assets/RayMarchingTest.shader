@@ -114,17 +114,27 @@
             
             float GetDist_SubstructionTest(float3 p)
             {
+                float spherePos = sin(_Time.x*10);
                 float planeDist = p.y + 0.5f;
+                
+                //add
+                float sphere1 = Sphere(p, float4(-4,0,0,.3));
+                float sphere2 = Sphere(p, float4(spherePos-4,0.2,0,.3));
+                float addition = add(sphere1, sphere2);
                 //substruction
-                float sphere1 = Sphere(p, float4(+0.2,0,0,.3));
-                float sphere2 = Sphere(p, float4(-0.1,0,0,.3));
+                sphere1 = Sphere(p, float4(-2,0,0,.3));
+                sphere2 = Sphere(p, float4(spherePos-2,0.2,0,.3));
                 float substruction = substruct(sphere1, sphere2);
-                
-                sphere1 = Sphere(p, float4(1.2,0,0,.3));
-                sphere2 = Sphere(p, float4(0.9,0,0,.3));
+                //intersection
+                sphere1 = Sphere(p, float4(0,0,0,.3));
+                sphere2 = Sphere(p, float4(spherePos,0.2,0,.3));
                 float intersection = intersect(sphere1, sphere2);
+                //merge
+                sphere1 = Sphere(p, float4(2,0,0,.3));
+                sphere2 = Sphere(p, float4(spherePos+2,0.2,0,.3));
+                float merging = merge(sphere1, sphere2, 0.5);
                 
-                return add(substruction, intersection, planeDist);
+                return add(addition, substruction, intersection, merging, planeDist);
             }
 
             float GetDist_Trip(float3 p)

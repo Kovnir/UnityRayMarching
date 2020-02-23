@@ -28,3 +28,8 @@ float intersect(float a, float b)
 {
     return max(a, b);
 }
+
+float merge(float a, float b, float k) {
+    float h = clamp(0.5+0.5*(b-a)/k, 0., 1.);
+    return lerp(b, a, h) - k*h*(1.0-h);
+}
