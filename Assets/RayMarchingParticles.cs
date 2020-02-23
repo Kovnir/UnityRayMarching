@@ -14,15 +14,13 @@ public class RayMarchingParticles : MonoBehaviour
     List<Vector4> buffer = new List<Vector4>(PARTICLES_SIZE);
     private static readonly int Particles = Shader.PropertyToID("particles");
 
-    void Awake()
+    private void Awake()
     {
         particleSystem = GetComponent<ParticleSystem>();
         GetComponent<ParticleSystemRenderer>().enabled = false;
-//        particleSystem.re
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (!EnsureMaterialExist())
         {
@@ -36,7 +34,6 @@ public class RayMarchingParticles : MonoBehaviour
             {
                 var particle = particles[i];
                 Vector3 position = transform.TransformDirection(particle.position);
-//                Vector3 position = transform.localToWorldMatrix * particle.position;
                 buffer.Add(new Vector4(position.x, position.y, position.z, particle.GetCurrentSize(particleSystem)));
             }
             else

@@ -9,6 +9,11 @@
         _Color("Color", Color) = (1,1,1,1)
         _Shininess("Shininess", Range(0,100)) = 1
 
+        [Header(Direction Light)]
+        _LightDirection ("Direction", vector) = (0,-1,0)
+        _LightIntensity ("Intensity", float) = 1
+        _LightColor("Color", COLOR) = (1,1,1,1)
+
         [Header(System)]    
         _GeometrySurfDist("Geometry Surface Distance", Range(0.00001,0.4)) = 0.01
         _MaxSteps("Max Steps", Range(100,1000)) = 1000
@@ -57,6 +62,10 @@
             float3 _FresnelColor;
             float3 _Color;
             float _Shininess;
+            
+            float3 _LightDirection;
+            float _LightIntensity;
+            float3 _LightColor;
 
             v2f vert (appdata v)
             {
@@ -73,21 +82,14 @@
 
             float GetDist(float3 p)
             {
-                float distance = 10000;
-                for(int i = 0; i < 100; i ++)
+                float distance = _MaxDist;
+                for(int i = 0; i < 100; i++)
                 {
                     float4 particle = particles[i];
                     if (particle.w > 0)
                     {
                         float sphere = Sphere(p, particle);
-                        if (distance ==10000)
-                        {
-                            distance = sphere;
-                        }
-                        else
-                        {
-                            distance = merge(distance, sphere, _MergeFactor);
-                        }
+                        distance = merge(distance, sphere, _MergeFactor);
                     }
                 }
                 return distance;
@@ -108,11 +110,10 @@
             {
                 float3 n = GetNormal(p);
 
-                float3 directionLightDir = float3(0,-1,0);//_DirectionLight.xyz;
-                float3 directionLight = saturate(dot(n, -directionLightDir));// * _DirectionLight.w) * _DirectionLightColor;
+                float3 directionLight = saturate(dot(n, -_LightDirection)) * _LightIntensity * _LightColor;
                 float3 fresnel = 1-dot(n, -rd);
                 
-                float3 specLight = max(0.0, dot(reflect(-directionLightDir, n), rd));
+                float3 specLight = max(0.0, dot(reflect(-_LightDirection, n), rd));
                 
                 return (directionLight * _LightFactor + fresnel * _FresnelFactor * _FresnelColor) * _Color + pow(specLight, _Shininess);
             }
@@ -154,7 +155,6 @@
                 {
                     float3 p = ro + rd * d;
                     float3 dif = GetLight(p, rd);
-//                    float3 n = GetNormal(p);
                     col.rgb = dif;
                 }
                 else

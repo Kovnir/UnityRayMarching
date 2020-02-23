@@ -27,6 +27,7 @@ Material:
     - _FresnelFactor: 2.33
     - _GeometrySurfDist: 0.01
     - _LightFactor: 0.95
+    - _LightIntensity: 1.37
     - _MaxDist: 200
     - _MaxSteps: 200
     - _MergeFactor: 3.82
@@ -34,3 +35,6 @@ Material:
     m_Colors:
     - _Color: {r: 0.5566038, g: 0.102394104, b: 0.3167692, a: 1}
     - _FresnelColor: {r: 0.18975924, g: 0, b: 0.7924528, a: 1}
+    - _LightColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LightDirection: {r: 0, g: -1, b: 0, a: 1}
+    - _LightIntensity: {r: 0, g: 0, b: 0, a: 1}

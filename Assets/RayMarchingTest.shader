@@ -88,8 +88,6 @@
 
             float GetDist_AllShapes(float3 p)
             {
-//                float3 rotation = float3(_Time.x
-            
                 float plane = p.y + 0.5f;
                 float sphere = Sphere(p, float4(-0.5,0,0,.2));
                 float capsule = Capsule(p, float3(0,-0.075,0), float3(0,0.15,0), 0.1, _Time);
@@ -143,13 +141,14 @@
                 float distance = 1000;
                 
                 for(int i =-3; i < 3; i++)
+                {
                     for(int j =-3; j < 3; j++)
                     {
                         float f1 = sin(_Time * 30 + i)/3;
                         float f2 = sin(_Time * 30 + j)/4;
                         distance = add(distance, Sphere(p, float4(i + f1,0.2,j + f2,.3)));
                     }
-               
+                }               
                 float planeDist = p.y;
                 return add(distance, planeDist) + planeDist + distance;
             }
@@ -244,7 +243,6 @@
                 {
                     float3 p = ro + rd * d;
                     float3 dif = GetLight(p);
-//                    float3 n = GetNormal(p);
                     col.rgb = dif;
                 }
                 else

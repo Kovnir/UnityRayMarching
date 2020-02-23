@@ -16,12 +16,12 @@ public class RayMarchingCanvas : MonoBehaviour
     
     private Material material;
 
-    void Awake()
+    private void Awake()
     {
         material = GetComponent<MeshRenderer>().sharedMaterial;
     }
 
-    void Update()
+    private void Update()
     {
         if (directionalLight == null || !directionalLight.isActiveAndEnabled)
         {
@@ -48,6 +48,5 @@ public class RayMarchingCanvas : MonoBehaviour
         directional.w = intensity;
         material.SetVector(isDirectional ? directionLightProperty : pointLightProperty, directional);
         material.SetColor(isDirectional ?directionLightColorProperty : pointLightColorProperty, color);
-
     }
 }
