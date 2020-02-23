@@ -2,11 +2,16 @@
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _DirectionLight ("_DirectionLight", Vector) = (0,0,0,0)
+        _DirectionLightColor("DirectionaLightColor", COLOR) = (1,1,1,1)
+        _PointLight ("_PointLight", Vector) = (0,0,0,0)
+        _PointLightColor("PointLightColor", COLOR) = (1,1,1,1)
     }
+    
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+    
+        Tags { "RenderType"="Opaque" "LightMode" = "ForwardBase" }
         LOD 100
 
         Pass
@@ -16,8 +21,8 @@
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            #define MAX_STEPS 100
-            #define MAX_DIST 100
+            #define MAX_STEPS 1000
+            #define MAX_DIST 1000
             #define SURF_DIST 1e-3
             
             struct appdata
@@ -32,16 +37,18 @@
                 float4 vertex : SV_POSITION;
                 float3 ro : TEXCOORD1;
                 float3 hitPos : TEXCOORD2;
-            };
+            }; 
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+            float4 _DirectionLight;
+            float3 _DirectionLightColor;
+            float4 _PointLight;
+            float3 _PointLightColor;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;
                 o.ro = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos,1)); //from worlds space to object space
                 o.hitPos = v.vertex; //already in object space
                 return o;
@@ -50,8 +57,16 @@
 
             float GetDist(float3 p)
             {
-                float d = length(p) - .5; //sphere
-                d = length(float2(length(p.xz)-0.5, p.y)) - 0.1;
+                float4 s =  float4(0,0.2,0,.2);//sphere
+                float sphereDistance = length(p - s.xyz) - s.w;
+                
+                float planeDist = p.y;
+                
+                //d = length(float2(length(p.xz)-0.5, p.y)) - 0.1; //torus
+
+                float d = min(sphereDistance, planeDist);
+                
+                
                 return d;
             }
             
@@ -87,6 +102,20 @@
                 return normalize(n);
             }
 
+            float3 GetLight(float3 p)
+            {
+                float3 n = GetNormal(p);
+
+                float3 directionLightPos = _DirectionLight.xyz;
+                float3 directionLight = saturate(dot(n, directionLightPos.xyz) * _DirectionLight.w) * _DirectionLightColor;
+
+                float3 pointLightPos = _PointLight.xyz;
+                float l = normalize(pointLightPos-p);
+                float3 pointLight = saturate(dot(n, l) * _PointLight.w) * _PointLightColor;
+                
+                return directionLight + pointLight;
+            }
+
             fixed4 frag (v2f i) : SV_Target
             {
                 //make uv from center
@@ -102,8 +131,9 @@
                 if (d<MAX_DIST)
                 {
                     float3 p = ro + rd * d;
-                    float3 n = GetNormal(p);
-                    col.rgb = n;
+                    float3 dif = GetLight(p);
+//                    float3 n = GetNormal(p);
+                    col.rgb = dif;
                 }
                 else
                 {

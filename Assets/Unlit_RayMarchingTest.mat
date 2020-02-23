@@ -24,4 +24,9 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats: []
-    m_Colors: []
+    m_Colors:
+    - _DirectionLight: {r: -0.25, g: 0.28, b: -0.31, a: 0.76}
+    - _DirectionLightColor: {r: 0.24056602, g: 0.661242, b: 1, a: 1}
+    - _LightPos: {r: -0.99, g: 4.25, b: 6, a: 0}
+    - _PointLight: {r: 2.38, g: 1.33, b: 3.36, a: 0.99}
+    - _PointLightColor: {r: 1, g: 0.8060816, b: 0.7216981, a: 1}
