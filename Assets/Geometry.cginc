@@ -20,3 +20,9 @@ float Torus(float3 p, float3 position, float2 radius)
     return length(float2(length(p.xz)-radius.x, p.y)) - radius.y;
 }
 
+float Box(float3 p, float3 position, float3 size)
+{
+    p -= position;
+    return length(max(abs(p)-size, 0));
+}
+

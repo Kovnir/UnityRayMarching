@@ -16,6 +16,7 @@
         
         [Header(System)]
         [KeywordEnum(MovingBalls, Trip, AllShapes)] _Program ("Program", Float) = 0
+        [KeywordEnum(LocalSpace, WorldSpace)] _RenderMode ("Render Mode", Float) = 0
 
         [Header(Quality)]
         _GeometrySurfDist("Geometry Surface Distance", Range(0.00001,0.4)) = 0.01
@@ -36,6 +37,7 @@
             #pragma fragment frag
             #pragma shader_feature ENABLE_SHADOWS
             #pragma multi_compile _PROGRAM_MOVINGBALLS _PROGRAM_TRIP _PROGRAM_ALLSHAPES
+            #pragma multi_compile _RENDERMODE_LOCALSPACE _RENDERMODE_WORLDSPACE
             #include "UnityCG.cginc"
             #include "Geometry.cginc"
             #include "Blends.cginc"
@@ -70,8 +72,15 @@
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = v.uv;
+                
+#ifdef _RENDERMODE_LOCALSPACE 
+                o.ro = _WorldSpaceCameraPos;
+                o.hitPos =mul(unity_ObjectToWorld, v.vertex);
+#endif
+#ifdef _RENDERMODE_WORLDSPACE
                 o.ro = mul(unity_WorldToObject, float4(_WorldSpaceCameraPos,1)); //from worlds space to object space
                 o.hitPos = v.vertex; //already in object space
+#endif
                 return o;
             }
 
@@ -81,7 +90,8 @@
                 float sphere = Sphere(p, float4(-0.5,0,0,.2));
                 float capsule = Capsule(p, float3(0,-0.075,0), float3(0,0.15,0), 0.1);
                 float torus = Torus(p, float3(0.5,0,0), float2(0.15,0.05));
-                return min(plane, sphere, capsule, torus);
+                float box = Box(p, float3(1,0,0), float3(0.1,0.1, 0.1));
+                return min(plane, sphere, capsule, torus, box);
             }
                         
             float GetDist_MovingBalls(float3 p)
