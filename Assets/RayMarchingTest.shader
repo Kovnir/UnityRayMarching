@@ -78,9 +78,10 @@
             float GetDist_AllShapes(float3 p)
             {
                 float plane = p.y + 0.5f;
-                float sphere = Sphere(p, float4(-1,0,0,.3));
+                float sphere = Sphere(p, float4(-0.5,0,0,.2));
                 float capsule = Capsule(p, float3(0,-0.075,0), float3(0,0.15,0), 0.1);
-                return min(plane, sphere, capsule);
+                float torus = Torus(p, float3(0.5,0,0), float2(0.15,0.05));
+                return min(plane, sphere, capsule, torus);
             }
                         
             float GetDist_MovingBalls(float3 p)

@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Unlit_RayMarchingTest
   m_Shader: {fileID: 4800000, guid: 581b7d669509d4dfa91de60af5c415c0, type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: _PROGRAM_ALLSHAPES
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -27,6 +27,8 @@ Material:
     - _EnableShadows: 0
     - _FillWithRed: 0
     - _GeometrySurfDist: 0.008
+    - _Overlay: 0
+    - _Program: 2
     - _ShadowSurfDist: 0.02
     - _SurfDist: 0.008
     m_Colors:

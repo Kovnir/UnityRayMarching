@@ -14,9 +14,9 @@ float Capsule(float3 p, float3 a, float3 b, float r)
     return length (p-c) - r;
 }
 
-float Torus()
+float Torus(float3 p, float3 position, float2 radius)
 {
-                
-                //d = length(float2(length(p.xz)-0.5, p.y)) - 0.1; //torus
+    p -= position;
+    return length(float2(length(p.xz)-radius.x, p.y)) - radius.y;
 }
 
