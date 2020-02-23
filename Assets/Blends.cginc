@@ -1,16 +1,30 @@
-float min (float a, float b, float c)
+float add(float a, float b)
 {
-    return min(a, min(b, c));
+    return min(a, b);
 }
-float min (float a, float b, float c, float d)
+float add(float a, float b, float c)
 {
-    return min(a, min(b, c, d));
+    return add(a, add(b, c));
 }
-float min (float a, float b, float c, float d, float e)
+float add(float a, float b, float c, float d)
 {
-    return min(a, min(b, c, d, e));
+    return add(a, add(b, c, d));
 }
-float min (float a, float b, float c, float d, float e, float f)
+float add(float a, float b, float c, float d, float e)
 {
-    return min(a, min(b, c, d, e, f));
+    return add(a, add(b, c, d, e));
+}
+float add(float a, float b, float c, float d, float e, float f)
+{
+    return add(a, add(b, c, d, e, f));
+}
+
+float substruct(float a, float b)
+{
+    return max(-a, b);
+}
+
+float intersect(float a, float b)
+{
+    return max(a, b);
 }

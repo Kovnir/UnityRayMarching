@@ -15,7 +15,7 @@
         _EnableShadows ("Enable Shadows", Float) = 0
         
         [Header(System)]
-        [KeywordEnum(MovingBalls, Trip, AllShapes)] _Program ("Program", Float) = 0
+        [KeywordEnum(MovingBalls, Trip, AllShapes, SubstructionTest)] _Program ("Program", Float) = 0
         [KeywordEnum(LocalSpace, WorldSpace)] _RenderMode ("Render Mode", Float) = 0
 
         [Header(Quality)]
@@ -36,7 +36,7 @@
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature ENABLE_SHADOWS
-            #pragma multi_compile _PROGRAM_MOVINGBALLS _PROGRAM_TRIP _PROGRAM_ALLSHAPES
+            #pragma multi_compile _PROGRAM_MOVINGBALLS _PROGRAM_TRIP _PROGRAM_ALLSHAPES _PROGRAM_SUBSTRUCTIONTEST
             #pragma multi_compile _RENDERMODE_LOCALSPACE _RENDERMODE_WORLDSPACE
             #include "UnityCG.cginc"
             #include "Geometry.cginc"
@@ -93,7 +93,7 @@
                 float capsule = Capsule(p, float3(0,-0.075,0), float3(0,0.15,0), 0.1, _Time);
                 float torus = Torus(p, float3(0.5,0,0), float2(0.15,0.05), _Time);
                 float box = Box(p, float3(1,0,0), float3(0.1,0.1, 0.1), _Time);
-                return min(plane, sphere, capsule, torus, box);
+                return add(plane, sphere, capsule, torus, box);
             }
                         
             float GetDist_MovingBalls(float3 p)
@@ -105,11 +105,26 @@
                     {
                         float f1 = sin(_Time * 30 + i)/3;
                         float f2 = sin(_Time * 30 + j)/4;
-                        distance = min(distance, Sphere(p, float4(i + f1,-0.3,j + f2,.3)));
+                        distance = add(distance, Sphere(p, float4(i + f1,-0.3,j + f2,.3)));
                     }
                 }
                 float planeDist = p.y + 0.5f;
-                return min(distance, planeDist);
+                return add(distance, planeDist);
+            }
+            
+            float GetDist_SubstructionTest(float3 p)
+            {
+                float planeDist = p.y + 0.5f;
+                //substruction
+                float sphere1 = Sphere(p, float4(+0.2,0,0,.3));
+                float sphere2 = Sphere(p, float4(-0.1,0,0,.3));
+                float substruction = substruct(sphere1, sphere2);
+                
+                sphere1 = Sphere(p, float4(1.2,0,0,.3));
+                sphere2 = Sphere(p, float4(0.9,0,0,.3));
+                float intersection = intersect(sphere1, sphere2);
+                
+                return add(substruction, intersection, planeDist);
             }
 
             float GetDist_Trip(float3 p)
@@ -121,11 +136,11 @@
                     {
                         float f1 = sin(_Time * 30 + i)/3;
                         float f2 = sin(_Time * 30 + j)/4;
-                        distance = min(distance, Sphere(p, float4(i + f1,0.2,j + f2,.3)));
+                        distance = add(distance, Sphere(p, float4(i + f1,0.2,j + f2,.3)));
                     }
                
                 float planeDist = p.y;
-                return min(distance, planeDist) + planeDist + distance;
+                return add(distance, planeDist) + planeDist + distance;
             }
                         
             float GetDist(float3 p)
@@ -138,6 +153,9 @@
 #endif
 #ifdef _PROGRAM_ALLSHAPES
                 return GetDist_AllShapes(p);
+#endif
+#ifdef _PROGRAM_SUBSTRUCTIONTEST
+                return GetDist_SubstructionTest(p);
 #endif
             }
             
