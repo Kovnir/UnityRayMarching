@@ -217,12 +217,11 @@
 
                 float3 pointLightPos = _PointLight.xyz;
                 float3 directionToPointLight = pointLightPos-p;
-                float lightNormal = normalize(pointLightPos-p);
+                float3 lightNormal = normalize(directionToPointLight);
                 float3 pointLight = saturate(dot(n, lightNormal) * _PointLight.w) * _PointLightColor;
                 float lightLength = length(directionToPointLight);
-                pointLight = lerp(0, pointLight, saturate(_PointLightRange - lightLength));
+                pointLight = lerp(0, pointLight, clamp(_PointLightRange - lightLength, 0, _PointLightRange)/_PointLightRange);
                 
-
 #ifdef ENABLE_SHADOWS
                 float shadow = Raymarch(p + n * _ShadowSurfDist, pointLightPos);
                 if (shadow < length(pointLightPos - p))
