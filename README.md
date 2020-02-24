@@ -12,6 +12,9 @@ There are several simple tests, that helped me recognize how Ray Marching works.
 
 To use this, you need to apply the material with shader `RayMarchingTest` to any mesh. This mesh will we used as a canvas to render Ray Marching image.
 
+<img src="/Images/test_material.png" width=500></img>
+
+
 ### Light
 
 You can setup two light sources: one `Directional` and one `Point`.
@@ -28,6 +31,8 @@ Also, you can enable or disable `Shadows`, but they are looks awful.
 
 ### System
 
+<img src="/Images/trip.gif" width=500></img>
+
 coming soon...
 
 ### Quality
@@ -35,5 +40,7 @@ coming soon...
 coming soon...
 
 ## Particle System
+
+<img src="/Images/particles.gif" width=500></img>
 
 coming soon...
