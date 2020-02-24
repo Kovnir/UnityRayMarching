@@ -10,7 +10,9 @@ If you want to learn Ray Marching - I recommend you next youtube videos, that he
 
 There are several simple tests, that helped me recognize how Ray Marching works.
 
-To use this, you need to apply the material with shader `RayMarchingTest` to any mesh. This mesh will we used as a canvas to render Ray Marching image.
+To use this, you need to apply the material with shader `RayMarchingTest` to any mesh. This mesh will we used as a canvas to render Ray Marching image. 
+
+Example you can find in `SimpleExamples/SampleExample.unity` scene.
 
 <img src="/Images/test_material.png" width=500></img>
 
@@ -31,13 +33,21 @@ Also, you can enable or disable `Shadows`, but they are looks awful.
 
 ### System
 
+Use the `Program` field to select which algorithm you want to use:
+- `MovingBalls` - renders flour and 16 moving bools;
+- `Trip` - renders the same, but use unusual blending function (see below on the gif 1);
+- `AllShapes` - renders four base primitive shapes: Sphere, Capsule, Torus, and Box;
+- `BlendingTypes` - applys different blending function for two moving balls (see below on the gif 2);
+
 <img src="/Images/trip.gif" width=500></img>
+<img src="/Images/blends.gif" width=500></img>
+
 
 coming soon...
 
 ### Quality
 
-coming soon...
+Here you can set up two variables: `Geometry Surface Distance` and `Shadow Surface Distance`. They are affecting accuracy calculations, lowest values - better quality and lower performance.
 
 ## Particle System
 
